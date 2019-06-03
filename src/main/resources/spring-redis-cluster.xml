@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:cache="http://www.springframework.org/schema/cache"
+       xmlns="http://www.springframework.org/schema/beans" xmlns:p="http://www.springframework.org/schema/p"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans.xsd
+	http://www.springframework.org/schema/aop
+	http://www.springframework.org/schema/aop/spring-aop.xsd
+	http://www.springframework.org/schema/tx
+	http://www.springframework.org/schema/tx/spring-tx.xsd
+    http://www.springframework.org/schema/cache
+    http://www.springframework.org/schema/cache/spring-cache.xsd">
+    
+		<!-- 启用缓存注解功能 -->
+    <cache:annotation-driven cache-manager="cacheManager"/>
+		<!-- 引入配置文件 -->
+		
+    <bean id="propertyConfigurer"  class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+			<property name="location" value="classpath:properties/redis.properties" />
+    </bean>
+		<!-- Jedis配置 -->
+    <bean id="jedisPoolConfig" class="redis.clients.jedis.JedisPoolConfig">
+        <property name="maxTotal" value="2048"/>
+        <property name="maxIdle" value="${redis.maxIdle}"/>
+        <property name="numTestsPerEvictionRun" value="1024"/>
+        <property name="timeBetweenEvictionRunsMillis" value="30000"/>
+        <property name="minEvictableIdleTimeMillis" value="-1"/>
+        <property name="softMinEvictableIdleTimeMillis" value="10000"/>
+        <property name="maxWaitMillis" value="${redis.maxWait}"/>
+        <property name="testOnBorrow" value="${redis.testOnBorrow}"/>
+        <property name="testWhileIdle" value="true"/>
+        <property name="testOnReturn" value="false"/>
+        <property name="jmxEnabled" value="true"/>
+        <property name="blockWhenExhausted" value="false"/>
+    </bean>
+    <!-- 配置文件加载 -->
+    <bean id="resourcePropertySource" class="org.springframework.core.io.support.ResourcePropertySource">
+    	<constructor-arg name="name" value="redis.properties"/>
+    	<constructor-arg name="resource" value="classpath:properties/redis.properties"/>
+    </bean>
+    <!-- Cluster 配置 -->
+    <bean id="redisClusterConfiguration" class="org.springframework.data.redis.connection.RedisClusterConfiguration">
+			<constructor-arg name="propertySource" ref="resourcePropertySource"/>
+    </bean>
+		<!-- Redis服务中心 -->
+    <bean id="connectionFactory"  class="org.springframework.data.redis.connection.jedis.JedisConnectionFactory" >
+			<constructor-arg name="clusterConfig" ref="redisClusterConfiguration"/>
+			<constructor-arg name="poolConfig" ref="jedisPoolConfig"/>
+			<property name="password" value="${redis.password}" />
+			<property name="timeout" value="${redis.timeout}" ></property>
+    </bean>
+
+    <bean id="redisTemplate" class="org.springframework.data.redis.core.RedisTemplate">
+        <property name="connectionFactory" ref="connectionFactory"/>
+        <property name="keySerializer" >    
+            <bean class="org.springframework.data.redis.serializer.StringRedisSerializer" />    
+        </property>    
+        <property name="valueSerializer" >    
+            <bean class="org.springframework.data.redis.serializer.JdkSerializationRedisSerializer" />    
+        </property>    
+        <property name="hashKeySerializer">    
+            <bean class="org.springframework.data.redis.serializer.StringRedisSerializer"/>    
+        </property>    
+        <property name="hashValueSerializer">    
+            <bean class="org.springframework.data.redis.serializer.JdkSerializationRedisSerializer"/>    
+        </property> 
+        <property name="defaultSerializer">
+            <bean class="org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer"/>
+        </property>
+    </bean>
+    <bean id="cacheManager" class="org.springframework.data.redis.cache.RedisCacheManager">
+        <constructor-arg ref="redisTemplate"/>
+        <property name="usePrefix" value="true"/>
+        <property name="cacheNames">
+            <list>
+                <value>userInfo</value>
+            </list>
+        </property>
+    </bean>
+</beans>

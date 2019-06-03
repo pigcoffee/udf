@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE log4j:configuration PUBLIC "-//log4j/log4j Configuration//EN" "log4j.dtd">
+<log4j:configuration xmlns:log4j="http://jakarta.apache.org/log4j/">
+    
+    <appender name="STDOUT" class="org.apache.log4j.ConsoleAppender">
+        <layout class="org.apache.log4j.PatternLayout"> 
+            <param name="ConversionPattern" value="%d [%t] [%-5p] %m(%c)%n"/> 
+        </layout> 
+    </appender>
+    
+    <appender name="lFile" class="org.apache.log4j.RollingFileAppender">
+        <param name="File" value="${LOG.DIR}/${LOG.NAME}.log" /><!-- 设置日志输出文件名 -->
+        <param name="Encoding" value="UTF-8"/>
+        <layout class="org.apache.log4j.PatternLayout">
+            <param name="ConversionPattern" value="%d [%t] [%-5p] %m(%c)%n"/> 
+        </layout>
+    </appender>
+    
+    <root>
+        <priority value="DEBUG" /> 
+        <appender-ref ref="lFile" />
+        <appender-ref ref="STDOUT" />
+    </root>
+    
+</log4j:configuration>
