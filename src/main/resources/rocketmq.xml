@@ -11,7 +11,7 @@
 	<context:component-scan base-package="com.gdf.mq.rocketmq.core" />
 	
 	<bean id="mqProperties" class="com.gdf.mq.rocketmq.core.MQProperties">
-		<property name="nameServer" value="10.72.86.241:9876;10.72.86.229:9876"/>
+		<property name="nameServer" value="*.*.*.*:9876;*.*.*.*:9876"/>
 		<property name="sendMessageTimeout" value="3000"/>
 		<property name="topicQueueNum" value="4"/>
 	</bean>
