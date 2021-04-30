@@ -21,7 +21,7 @@
 		<appassembler.version>1.8.1</appassembler.version>
 		<junit.version>4.12</junit.version>
 
-		<spring.framework.version>4.3.13.RELEASE</spring.framework.version>
+		<spring.framework.version>4.3.29.RELEASE</spring.framework.version>
 		<project.basedir />
 	</properties>
 
